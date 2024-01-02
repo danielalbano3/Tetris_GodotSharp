@@ -1,0 +1,9 @@
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\bin\Debug\Tetris Godot Sharp.dll
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\bin\Debug\Tetris Godot Sharp.pdb
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.csproj.AssemblyReference.cache
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.AssemblyInfoInputs.cache
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.AssemblyInfo.cs
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.csproj.CoreCompileInputs.cache
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.dll
+C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\.mono\temp\obj\Debug\Tetris Godot Sharp.pdb

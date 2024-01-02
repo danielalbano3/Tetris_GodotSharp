@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = TetrisGodotSharp
+build_property.ProjectDir = C:\Godot3CS\Projects\Tetris\Tetris_GodotSharp\
