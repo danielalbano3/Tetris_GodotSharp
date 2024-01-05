@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Shape : Node2D
 {
+    protected Timer Clock;
     protected int rotateCount;
     protected enum _SHAPE
     {
@@ -16,188 +17,147 @@ public class Shape : Node2D
         S
     }
     protected _SHAPE SHAPE;
+    protected bool isActive;
 
     protected Cell C1;
     protected Cell C2;
     protected Cell C3;
     protected Cell C4;
+    protected Cell[] cells;
 
-    public Board Board;
-
-    [Signal] public delegate void NextShapeSignal();
+    [Signal] public delegate void NextShapeSignal(Cell c1, Cell c2, Cell c3, Cell c4);
+    [Signal] public delegate void RequestUpdateSignal(Cell c1, Cell c2, Cell c3, Cell c4);
 
     protected int[,,] ShapeTurns = new int[4,4,2];
 
     protected int[,,,] TurnMap =
     {
-        //I [0]
         {
-            //MOVES [0,0]
             {
-                //CELL POSITIONS[0,0,0] x,y
                 {1,0},{1,1},{1,2},{1,3}
             },
             {
-                //CELL POSITIONS
                 {0,2},{1,2},{2,2},{3,2}
             },
             {
-                //CELL POSITIONS
                 {2,0},{2,1},{2,2},{2,3}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,1},{2,1},{3,1}
             },
-            
         },
-        
-        //Z
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,1},{1,2}
             },
             {
-                //CELL POSITIONS
                 {0,2},{1,1},{1,2},{2,1}
             },
             {
-                //CELL POSITIONS
                 {1,0},{1,1},{2,1},{2,2}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,0},{1,1},{2,0}
             },
             
         },
-        
-        //J
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,0},{1,0},{1,1},{1,2}
             },
             {
-                //CELL POSITIONS
                 {0,1},{0,2},{1,1},{2,1}
             },
             {
-                //CELL POSITIONS
                 {1,0},{1,1},{1,2},{2,2}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,1},{2,0},{2,1}
             },
-            
         },
-        
-        //O
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,0},{1,1}
             },
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,0},{1,1}
             },
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,0},{1,1}
             },
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,0},{1,1}
             },
-            
-            
         },
-        
-        //L
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,2},{1,0},{1,1},{1,2}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,1},{2,1},{2,2}
             },
             {
-                //CELL POSITIONS
                 {1,0},{1,1},{1,2},{2,0}
             },
             {
-                //CELL POSITIONS
                 {0,0},{0,1},{1,1},{2,1}
             },
-            
         },
-        
-        //T
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,1},{1,0},{1,1},{1,2}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,1},{2,1},{1,2}
             },
             {
-                //CELL POSITIONS
                 {1,0},{1,1},{1,2},{2,1}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,0},{1,1},{2,1}
             },
-            
         },
-        
-        //S
         {
-            //MOVES
             {
-                //CELL POSITIONS
                 {0,1},{0,2},{1,0},{1,1}
             },
             {
-                //CELL POSITIONS
                 {0,1},{1,1},{1,2},{2,2}
             },
             {
-                //CELL POSITIONS
                 {1,1},{1,2},{2,0},{2,1}
             },
             {
-                //CELL POSITIONS
                 {0,0},{1,0},{1,1},{2,1}
             },
-            
         },
-        
     };
 
     public override void _Ready()
     {   
+        isActive = true;
         rotateCount = 0;
+        Clock = GetNode<Timer>("Clock");
         C1 = GetNode<Cell>("C1");
         C2 = GetNode<Cell>("C2");
         C3 = GetNode<Cell>("C3");
         C4 = GetNode<Cell>("C4");
+        cells = new Cell[4]{C1,C2,C3,C4};
+        
+        foreach (Cell cell in cells)
+        {
+            cell.AddToGroup("squares");
+        }
+        Clock.Start();
+        Clock.Connect("timeout", this, "GoDown");
 
-        // Board = (Board)GetTree().GetNodesInGroup("board")[0];
-        // Connect("NextShapeSignal", Board, "NextShape");
     } 
+    
+    protected void EndShape()
+    {
+        isActive = false;
+        EmitSignal("NextShapeSignal", C1, C2, C3, C4);
+    }
 
     protected void SetTurnMap()
     {
@@ -215,9 +175,9 @@ public class Shape : Node2D
 
     protected void ColorChildren(string shapecolor)
     {
-        foreach (Cell cell in GetChildren())
+        foreach (Cell cell in cells)
         {
-            cell.Modulate = Color.ColorN(shapecolor);
+            cell.ColorCell(shapecolor);
         }
     }
 
@@ -226,31 +186,30 @@ public class Shape : Node2D
         float drow = row * 25f;
         float dcol = col * 25f;
         
-        Position = new Vector2(Position.x + drow, Position.y + dcol);
+        Position = new Vector2(Position.x + dcol, Position.y + drow);
     }
   
     public void GoDown()
     {
-        foreach (Cell cell in GetChildren())
+        EmitSignal("RequestUpdateSignal", C1, C2, C3, C4);
+        foreach (Cell cell in cells)
         {
-            cell.LookAround();
-
-            if (!cell.CanGoDown)
-            {
-                EmitSignal("NextShapeSignal");
+            if (!cell.CanGoDown) 
+            {   
+                EndShape();
                 return;
-            } 
+            }
         }
-
-        GD.Print("Can go down: " + GetChild<Cell>(2).CanGoDown);
-        MoveTo(0,1);
+        MoveTo(1,0);
     }
 
     public void GoLeft()
     {
-        foreach (Cell cell in GetChildren())
+        if (!isActive) return;
+
+        EmitSignal("RequestUpdateSignal", C1, C2, C3, C4);
+        foreach (Cell cell in cells)
         {
-            cell.LookAround();
             if (!cell.CanGoLeft) return;
         }
         MoveTo(0,-1);
@@ -258,9 +217,11 @@ public class Shape : Node2D
 
     public void GoRight()
     {
-        foreach (Cell cell in GetChildren())
+        if (!isActive) return;
+
+        EmitSignal("RequestUpdateSignal", C1, C2, C3, C4);
+        foreach (Cell cell in cells)
         {
-            cell.LookAround();
             if (!cell.CanGoRight) return;
         }
         MoveTo(0,1);
@@ -268,7 +229,13 @@ public class Shape : Node2D
 
     public virtual void GoTurn()
     {
+        if (!isActive) return;
 
+        EmitSignal("RequestUpdateSignal", C1, C2, C3, C4);
+
+        rotateCount++;
+        rotateCount %= 4;
+        SetCellPositions(rotateCount);
     }
 
     protected void SetCellPositions(int moveNumber)
@@ -300,9 +267,22 @@ public class Shape : Node2D
         base._Input(@event);
         if (Input.IsActionJustPressed("rotate"))
         {
-            rotateCount++;
-            rotateCount %= 4;
-            SetCellPositions(rotateCount);
+            GoTurn();
+        }
+
+        if (Input.IsActionJustPressed("go_down"))
+        {
+            GoDown();
+        }
+
+        if (Input.IsActionJustPressed("go_left"))
+        {
+            GoLeft();
+        }
+
+        if (Input.IsActionJustPressed("go_right"))
+        {
+            GoRight();
         }
     }
 }

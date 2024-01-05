@@ -1,12 +1,11 @@
 using Godot;
 using System;
-using System.Collections;
+// using System.Collections;
 using System.Collections.Generic;
 
 public class Board : Node2D
 {
-    private Timer Clock;
-
+    private PackedScene CellScene;
     private PackedScene Iscene;
     private PackedScene Jscene;
     private PackedScene Lscene;
@@ -14,26 +13,27 @@ public class Board : Node2D
     private PackedScene Oscene;
     private PackedScene Tscene;
     private PackedScene Sscene;
+    private PackedScene[] Packs; 
 
-    private PackedScene[] Packs = new PackedScene[7];
+    private Cell[,] GridSpaces;
+
     private Shape activeShape;
-
-    private bool hasShape;
 
     private Queue<int> shapeQ;
 
     public override void _Ready()
     {
-        hasShape = false;
+        GridSpaces = new Cell[20,10];
 
         shapeQ = new Queue<int>();
+
         Random randi = new Random();
         for (int i = 0; i < 7; i++)
         {
             shapeQ.Enqueue(randi.Next(7));
         }
-        Clock = GetNode<Timer>("Clock");
-
+        
+        CellScene = ResourceLoader.Load<PackedScene>("res://Scenes/Cell.tscn");
         Iscene = ResourceLoader.Load<PackedScene>("res://Scenes/I.tscn");
         Zscene = ResourceLoader.Load<PackedScene>("res://Scenes/Z.tscn");
         Jscene = ResourceLoader.Load<PackedScene>("res://Scenes/J.tscn");
@@ -42,73 +42,96 @@ public class Board : Node2D
         Tscene = ResourceLoader.Load<PackedScene>("res://Scenes/T.tscn");
         Sscene = ResourceLoader.Load<PackedScene>("res://Scenes/S.tscn");
 
-        Packs[0] = Iscene;
-        Packs[1] = Zscene;
-        Packs[2] = Jscene;
-        Packs[3] = Oscene;
-        Packs[4] = Lscene;
-        Packs[5] = Tscene;
-        Packs[6] = Sscene;
-
-        Clock.Connect("timeout", this, "RunGame");
-        Clock.Start();
+        Packs = new PackedScene[7]{Iscene,Zscene,Jscene,Oscene,Lscene,Tscene,Sscene};
+        
+        RunGame();
     }
 
-    private void NextShape()
+    private void OccupyGrid(Cell c1, Cell c2, Cell c3, Cell c4)
     {
-        hasShape = false;
+        Cell[] _cells = new Cell[4]{c1,c2,c3,c4};
+
+        foreach (Cell cell in _cells)
+        {
+            Vector2 CellPos = cell.GlobalPosition - GlobalPosition;
+            int xcol = (int)(CellPos.x / 25f);
+            int yrow = (int)(CellPos.y / 25f);
+
+            GridSpaces[yrow,xcol] = CloneCell(cell);
+        }
+
+        activeShape.QueueFree();
+        RunGame();
+    }
+
+    private Cell CloneCell(Cell cell)
+    {
+        Vector2 CellPos = cell.GlobalPosition - GlobalPosition;
+        int xcol = (int)(CellPos.x / 25f);
+        int yrow = (int)(CellPos.y / 25f);
+
+        Cell newcell = (Cell)CellScene.Instance();
+        AddChild(newcell);
+        newcell.GlobalPosition = cell.GlobalPosition;
+        newcell.Modulate = cell.Modulate;
+        
+        return newcell;
     }
 
     private void RunGame()
     {
         Random rand = new Random();
-        if (!hasShape)
-        {
-            hasShape = true;
-            int shapeindex = shapeQ.Dequeue();
-            shapeQ.Enqueue(rand.Next(7));
-            SpawnShape(shapeindex);
-        }
-        else
-        {
-            activeShape.GoDown();
-        }
+        
+        int shapeindex = shapeQ.Dequeue();
+        shapeQ.Enqueue(rand.Next(7));
+        SpawnShape(shapeindex);
     }
 
     private void SpawnShape(int randompick)
     {
-        if (randompick < 0 || randompick > 6) return;
-
         activeShape = (Shape)Packs[randompick].Instance();
         AddChild(activeShape);
         activeShape.GlobalPosition = new Vector2(50f,50f);
-    } 
+        activeShape.Connect("RequestUpdateSignal", this, "UpdateCell");
+        activeShape.Connect("NextShapeSignal", this, "OccupyGrid");
+    }   
+
+    private int[] QtoArray()
+    {
+        int[] qArr = shapeQ.ToArray();
+        return qArr;
+    }
+
+    public void UpdateCell(Cell c1, Cell c2, Cell c3, Cell c4)
+    {
+        Cell[] _cells = new Cell[4]{c1,c2,c3,c4};
+
+        foreach (Cell cell in _cells)
+        {
+            Vector2 CellPos = cell.GlobalPosition - GlobalPosition;
+            int xcol = (int)(CellPos.x / 25f);
+            int yrow = (int)(CellPos.y / 25f);
+            cell.CanGoDown = GetCell(yrow + 1,xcol) == null && CellPos.y < 475f;
+            cell.CanGoLeft = GetCell(yrow,xcol - 1) == null && CellPos.x > 0f;
+            cell.CanGoRight = GetCell(yrow,xcol + 1) == null && CellPos.x < 225f;
+        }
+    }
 
     public void CheckAround(Cell cell)
     {
-        // cell.UpdatePosition();
-
-        Cell left = GetCell(cell.row, cell.col - 1);
-        Cell right = GetCell(cell.row, cell.col + 1);
-        Cell down = GetCell(cell.row + 1, cell.col);
-
-        cell.CanGoLeft = left == null && cell.col > 0;
-        cell.CanGoRight = right == null && cell.col < 9;
-        cell.CanGoDown = down == null && cell.row < 19;
     }
 
-    public Cell GetCell(int _row, int _col)
+    public Cell GetCell(int _yrow, int _xcol)
     {
-        Godot.Collections.Array Cells;
-        Cells = GetTree().GetNodesInGroup("Cells");
-        // foreach (Cell cell in Cells)
-        // {
-        //     cell.UpdatePosition();
-        //     if (cell.row == _row && cell.col == _col) return cell;
-        // }
-        return null;
+        if (_yrow >= 20 || _yrow <= 0 || _xcol >= 10 || _xcol <= 0)
+        {
+            return null;
+        }
+        else
+        {
+            return GridSpaces[_yrow,_xcol];
+        }
     }
-
 
     private void CheckGameOver()
     {}
