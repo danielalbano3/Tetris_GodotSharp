@@ -14,4 +14,11 @@ public class Cell : Sprite
         CanGoRight = true;
     }
 
+    public void CellTo(float y, float x)
+    {
+        float addx = x * 25f;
+        float addy = y * 25f;    
+
+        Position = new Vector2(addx,addy);
+    }
 }
