@@ -1,16 +1,15 @@
 using Godot;
 using System;
-// using System.Collections;
 using System.Collections.Generic;
 
 public class Board : Node2D
 {
     private PackedScene CellScene;
     private PackedScene Iscene;
-    private PackedScene Jscene;
-    private PackedScene Lscene;
     private PackedScene Zscene;
+    private PackedScene Jscene;
     private PackedScene Oscene;
+    private PackedScene Lscene;
     private PackedScene Tscene;
     private PackedScene Sscene;
     private PackedScene[] Packs; 
@@ -57,6 +56,12 @@ public class Board : Node2D
             int xcol = (int)(CellPos.x / 25f);
             int yrow = (int)(CellPos.y / 25f);
 
+            if (yrow < 0)
+            {
+                DeclareGameOver();
+                return;
+            }
+
             GridSpaces[yrow,xcol] = CloneCell(cell);
         }
 
@@ -91,10 +96,33 @@ public class Board : Node2D
     {
         activeShape = (Shape)Packs[randompick].Instance();
         AddChild(activeShape);
-        activeShape.GlobalPosition = new Vector2(50f,50f);
+        activeShape.GlobalPosition = new Vector2(100f,-50f);
         activeShape.Connect("RequestUpdateSignal", this, "UpdateCell");
         activeShape.Connect("NextShapeSignal", this, "OccupyGrid");
+        activeShape.Connect("SeeAroundSignal", this, "CheckGrid");
     }   
+
+    public void CheckGrid(Vector2 vec)
+    {
+        Vector2 ShapePos = activeShape.Position;
+        int x = (int)(ShapePos.x / 25f) + (int)vec.x;
+        int y = (int)(ShapePos.y / 25f) + (int)vec.y;
+
+        if (x < 0 || x > 9 || y < 0 || y > 19) 
+        {
+            activeShape.AroundList.Add(false);
+            return;
+        }
+
+        if (GridSpaces[y,x] == null)
+        {
+            activeShape.AroundList.Add(true);
+        }
+        else
+        {
+            activeShape.AroundList.Add(false);
+        }
+    }
 
     private int[] QtoArray()
     {
@@ -117,10 +145,6 @@ public class Board : Node2D
         }
     }
 
-    public void CheckAround(Cell cell)
-    {
-    }
-
     public Cell GetCell(int _yrow, int _xcol)
     {
         if (_yrow >= 20 || _yrow <= 0 || _xcol >= 10 || _xcol <= 0)
@@ -133,11 +157,10 @@ public class Board : Node2D
         }
     }
 
-    private void CheckGameOver()
-    {}
-
     private void DeclareGameOver()
-    {}
+    {
+        GD.Print("Game Over!");
+    }
 
     private void ScanLine()
     {}

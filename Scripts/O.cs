@@ -10,6 +10,17 @@ public class O : Shape
         SetTurnMap();
         ColorChildren("yellow"); 
         SetCellPositions(0);
+        TurnPoints = 0;
+        TurnPositions = new Vector2[TurnPoints];
+
+
+        TurnTable = new Vector2[4,0]
+        {
+            {},
+            {},
+            {},
+            {},
+        };
     }
 
 }
