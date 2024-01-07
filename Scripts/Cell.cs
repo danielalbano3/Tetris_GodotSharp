@@ -14,14 +14,4 @@ public class Cell : Sprite
         CanGoRight = true;
     }
 
-    public void Snap()
-    {
-        QueueFree();
-    }
-
-    public void ColorCell(string colorname)
-    {
-        Modulate = Color.ColorN(colorname);
-    }
-
 }
