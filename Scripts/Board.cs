@@ -11,8 +11,11 @@ public class Board : Node2D
     private PackedScene ShapeScene;
     private PackedScene CellScene;
 
+    public Queue<int> NextTetros;
+
 
     [Signal] public delegate void ComboSignal(int combo, int row);
+    [Signal] public delegate void GameOver();
 
     public override void _Ready()
     {
@@ -22,12 +25,15 @@ public class Board : Node2D
         CellScene = ResourceLoader.Load<PackedScene>("res://Scenes/Cell.tscn");
         
         Cells = new Cell[20,10];
-        
+        NextTetros = new Queue<int>();
+        for (int i = 0; i < 7; i++)
+        {
+            Random rand = new Random();
+            NextTetros.Enqueue(rand.Next(7));
+        }
 
-        FillRow(19);
-        FillRow(18);
+        SpawnShape();
 
-        ScanLines();
 
     }
 
@@ -132,6 +138,9 @@ public class Board : Node2D
         {
             DropChunk(del[m]);
         }
+
+        SpawnShape();
+
     }
 
     public void ShowCombo(int combo, int row)
@@ -191,11 +200,134 @@ public class Board : Node2D
         Cells[row,col] = c;
     }
 
-    public void SpawnShape(int num)
+    public void UpdateCell(Cell cell)
+    {
+        Vector2 pos = cell.GlobalPosition - GlobalPosition;
+        int row = (int)(pos.y / 25f);
+        int col = (int)(pos.x / 25f);
+
+        if (row >= 0 && row <= 19 && col >=0 && col <=9)
+        {
+            cell.CanGoDown = row < 19;
+            cell.CanGoLeft = col > 0;
+            cell.CanGoRight = col < 9;
+
+            if (row + 1 <= 19)
+            {
+                if (Cells[row + 1,col] != null) cell.CanGoDown = false;
+            }
+            
+            if (col - 1 >= 0)
+            {
+                if (Cells[row,col - 1] != null) cell.CanGoLeft = false;
+            }
+
+            if (col + 1 <= 9)
+            {
+                if (Cells[row,col + 1] != null) cell.CanGoRight = false;
+            }
+            
+        }
+    }
+
+    public void SpawnShape()
     {
         Shape shape = (Shape)ShapeScene.Instance();
         AddChild(shape);
+        shape.Position = new Vector2(75f,-50f);
+        
+        shape.Connect("UpdateSignal", this, "UpdateCell");
+        shape.Connect("NextShape", this, "CheckGameOver");
+        shape.Connect("CheckRotations", this, "CheckRotate");
+
+        int num = NextTetros.Dequeue();
+
+        Random rand = new Random();
+        NextTetros.Enqueue(rand.Next(7));
+
         shape.GetShape(num);
+    }
+
+    public void CheckRotate(Shape shape)
+    {
+        Vector2[] vec = shape.NextRotation();
+        bool[] checkArray = new bool[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 pos = shape.GlobalPosition - GlobalPosition;
+            Vector2 v = vec[i] * 25f;
+            Vector2 target = pos + v;
+            bool result;
+
+            int row = (int)(target.y / 25f);
+            int col = (int)(target.x / 25f);
+
+            if (row <= 19 && col >= 0 && col <= 9)
+            {
+                result = false;
+            }
+            else
+            {
+                result = true;
+            }
+
+            if (row >= 0 && row <= 19 && col >= 0 && col <= 9)
+            {
+                if (Cells[row,col] != null)
+                {
+                    result = true;
+                }
+            }
+            checkArray[i] = result;
+        }
+
+        if (checkArray.Contains<bool>(true)) 
+        {
+            shape.CanRotate = false;
+        }
+        else
+        {
+            shape.CanRotate = true;
+        }
+    }
+
+    public void RemoveShape(Shape shape)
+    {
+        foreach (Cell oldcell in shape.Cells)
+        {
+            Cell newcell = CellScene.Instance() as Cell;
+            AddChild(newcell);
+            newcell.GlobalPosition = oldcell.GlobalPosition;
+            newcell.Modulate = oldcell.Modulate;
+
+            int row = (int)(newcell.GlobalPosition.y / 25f);
+            int col = (int)(newcell.GlobalPosition.x / 25f);
+            Cells[row,col] = newcell;
+        }
+        shape.QueueFree();
+        ScanLines();
+    }
+
+    public void CheckGameOver(Shape shape)
+    {
+        foreach (Cell cell in shape.Cells)
+        {
+            Vector2 pos = cell.GlobalPosition - GlobalPosition;
+            if (pos.y < 0)
+            {
+                GD.Print("Cell posY:" + cell.Position.y);
+                DeclareGameOver();
+                return;
+            }
+        }
+
+        RemoveShape(shape);
+    }
+
+    public void DeclareGameOver()
+    {
+        EmitSignal("GameOver");
+        GD.Print("OVER!");
     }
 
     public void RowCounter(int row)

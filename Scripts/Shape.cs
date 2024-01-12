@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class Shape : Node2D
 {
     [Signal] public delegate void UpdateSignal(Cell cell);
+    [Signal] public delegate void NextShape(Shape oldShape);
+    [Signal] public delegate void CheckRotations(Shape thisShape);
 
     public bool CanRotate;
 
@@ -23,7 +25,7 @@ public class Shape : Node2D
 
     public int TurnCount;   
     
-    private Vector2[,,] ShapeMap = new Vector2[7,4,4]
+    public Vector2[,,] ShapeMap = new Vector2[7,4,4]
     {
         //J
         {
@@ -258,8 +260,8 @@ public class Shape : Node2D
         }
     
     };
-    private Vector2[,] PhaseMap = new Vector2[4,4];
-    private Vector2[] CellMap = new Vector2[4];
+    public Vector2[,] PhaseMap = new Vector2[4,4];
+    public Vector2[] CellMap = new Vector2[4];
 
     public override void _Ready()
     {
@@ -279,12 +281,23 @@ public class Shape : Node2D
 
     }
 
+    public void TestNext()
+    {
+        Vector2[] test = new Vector2[4];
+        test = NextRotation();
+        foreach (Vector2 v in test)
+        {
+            GD.Print("V.x: " + v.x + ", v.y: " + v.y);
+        }
+    }
+
     public void CheckGrid()
     {
         foreach (Cell cell in Cells)
         {
             EmitSignal("UpdateSignal", cell);
         }
+        EmitSignal("CheckRotations", this);
     }
 
     public void MoveTo(float y, float x)
@@ -303,6 +316,20 @@ public class Shape : Node2D
         TurnCount %= 4;
 
         PositionCells();
+    }  
+
+    public Vector2[] NextRotation()
+    {
+        Vector2[] vec = new Vector2[4];
+        int nextCount = TurnCount + 2;
+        nextCount %= 4;
+
+        for (int i = 0; i < 4; i++)
+        {
+            vec[i] = PhaseMap[nextCount,i];
+        }
+
+        return vec;
     }
 
     public void PositionCells()
@@ -322,31 +349,40 @@ public class Shape : Node2D
 
     public void GoDown()
     {
+        CheckGrid();
         foreach (Cell cell in Cells)
         {
-            if (!cell.CanGoDown) return;
+            if (!cell.CanGoDown) 
+            {
+                EmitSignal("NextShape", this);
+                return;
+            }
         }
         MoveTo(1,0);
+        CheckGrid();
 
     }
 
     public void GoLeft()
     {
+        CheckGrid();
         foreach (Cell cell in Cells)
         {
             if (!cell.CanGoLeft) return;
         }
         MoveTo(0,-1);
-
+        CheckGrid();
     }
 
     public void GoRight()
     {
+        CheckGrid();
         foreach (Cell cell in Cells)
         {
             if (!cell.CanGoRight) return;
         }
         MoveTo(0,1);
+        CheckGrid();
 
     }
  
@@ -377,7 +413,7 @@ public class Shape : Node2D
                 color = "orange";
                 break;
             case Form.T:
-                color = "pink";
+                color = "purple";
                 break;
             case Form.S:
                 color = "green";
@@ -403,7 +439,10 @@ public class Shape : Node2D
     {
         base._Input(@event);
 
-        if (Input.IsActionJustPressed("rotate")) GoRotate();
+        if (Input.IsActionJustPressed("go_left")) GoLeft();
+        if (Input.IsActionJustPressed("go_right")) GoRight();
+        if (Input.IsActionJustPressed("go_rotate")) GoRotate();
+        if (Input.IsActionPressed("go_down")) GoDown();
     }
 
     public void GetShape(int num)

@@ -10,8 +10,6 @@ public class Cell : Sprite
     public int row;
     public int col;
 
-    [Signal] public delegate void RowTally(int row);
-
     public override void _Ready()
     {
         base._Ready();
@@ -19,19 +17,6 @@ public class Cell : Sprite
         CanGoLeft = true;
         CanGoRight = true;
         UpdateCell();
-        
-        Connect("RowTally", GetParent(), "RowCounter");
-
-        
-    }
-
-    public override void _Input(InputEvent @event)
-    {
-        base._Input(@event);
-        if (Input.IsActionJustReleased("rotate"))
-        {
-            EmitSignal("RowTally", row);
-        }
     }
 
     public void CellTo(float y, float x)
