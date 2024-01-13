@@ -10,6 +10,8 @@ public class Cell : Sprite
     public int row;
     public int col;
 
+    [Signal] public delegate void ShowCell(Cell cell);
+
     public override void _Ready()
     {
         base._Ready();
@@ -17,6 +19,7 @@ public class Cell : Sprite
         CanGoLeft = true;
         CanGoRight = true;
         UpdateCell();
+        Hide();
     }
 
     public void CellTo(float y, float x)

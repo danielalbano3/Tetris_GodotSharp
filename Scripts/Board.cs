@@ -13,9 +13,9 @@ public class Board : Node2D
 
     public Queue<int> NextTetros;
 
-
     [Signal] public delegate void ComboSignal(int combo, int row);
     [Signal] public delegate void GameOver();
+
 
     public override void _Ready()
     {
@@ -138,9 +138,7 @@ public class Board : Node2D
         {
             DropChunk(del[m]);
         }
-
         SpawnShape();
-
     }
 
     public void ShowCombo(int combo, int row)
@@ -299,9 +297,10 @@ public class Board : Node2D
             AddChild(newcell);
             newcell.GlobalPosition = oldcell.GlobalPosition;
             newcell.Modulate = oldcell.Modulate;
+            Vector2 Pos = newcell.GlobalPosition - GlobalPosition;
 
-            int row = (int)(newcell.GlobalPosition.y / 25f);
-            int col = (int)(newcell.GlobalPosition.x / 25f);
+            int row = (int)(Pos.y / 25f);
+            int col = (int)(Pos.x / 25f);
             Cells[row,col] = newcell;
         }
         shape.QueueFree();

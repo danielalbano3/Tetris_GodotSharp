@@ -352,6 +352,7 @@ public class Shape : Node2D
         CheckGrid();
         foreach (Cell cell in Cells)
         {
+            
             if (!cell.CanGoDown) 
             {
                 EmitSignal("NextShape", this);
