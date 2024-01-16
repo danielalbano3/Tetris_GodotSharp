@@ -11,36 +11,27 @@ public class Level : Node2D
     private int Points;
     private int PlayerLevel;
 
-    private Vector2[] LevelNeeds;
+    private int[] LevelNeeds;
     private Label ExpPoints;
     private ProgressBar PBar;
+
+    private Resource PB0;
+    private Resource PB25;
+    private Resource PB50;
+    private Resource PB75;
 
     public override void _Ready()
     {
         base._Ready();
-        LevelNeeds = new Vector2[20]
+        LevelNeeds = new int[10]
         {
-            new Vector2 (100,100), 
-            new Vector2 (210,310), 
-            new Vector2 (290,600), 
-            new Vector2 (325,925),
-            new Vector2 (350,1275),
-            new Vector2 (375,1650),
-            new Vector2 (400,2050),
-            new Vector2 (425,2475),
-            new Vector2 (450,2925),
-            new Vector2 (475,3400),
-            new Vector2 (500,3900),
-            new Vector2 (525,4425),
-            new Vector2 (550,4975),
-            new Vector2 (575,5550),
-            new Vector2 (679,6229),
-            new Vector2 (704,6933),
-            new Vector2 (729,7662),
-            new Vector2 (754,8416),
-            new Vector2 (779,9195),
-            new Vector2 (804,9999)
+            100,200,400,800,1600,3200,6400,12800,25600,51200
         };
+
+        PB0 = ResourceLoader.Load<Theme>("res://Themes/PB_0.tres");
+        PB25 = ResourceLoader.Load<Theme>("res://Themes/PB_25.tres");
+        PB50 = ResourceLoader.Load<Theme>("res://Themes/PB_50.tres");
+        PB75 = ResourceLoader.Load<Theme>("res://Themes/PB_75.tres");
         
         Points = 0;
         PlayerLevel = 0;
@@ -83,20 +74,39 @@ public class Level : Node2D
         UpgradeLevel();
     }
 
-
     public void UpgradeLevel()
     {
-        while (Points >= LevelNeeds[PlayerLevel].y) PlayerLevel++;
-        GD.Print("Level: " + PlayerLevel);
+        bool notMax = true;
+        while (Points >= LevelNeeds[PlayerLevel] && notMax)
+        {
+            Points -= LevelNeeds[PlayerLevel];
 
-        UpdateLevelLabel(PlayerLevel);
+            PlayerLevel++;
+            UpdateLevelLabel(PlayerLevel);
+            if (PlayerLevel == LevelNeeds.Length) 
+            {
+                DeclareWin();
+                notMax = false;
+            }
+        }
 
-        int denominator = (int)LevelNeeds[PlayerLevel].x;
-        int numerator = Points % denominator;
-        UpdateExp(numerator,denominator);
+        UpdateExp(Points,LevelNeeds[PlayerLevel]);
+        
+        PBar.Value = Points;
+        PBar.MaxValue = LevelNeeds[PlayerLevel];
 
-        PBar.MaxValue = denominator;
-        PBar.Value = numerator;
+        float prog = (float)(PBar.Value / PBar.MaxValue);
+        
+        if (prog < 0.25f) PBar.Theme = (Theme)PB0;
+        if (prog >= 0.25f && prog < 0.5f) PBar.Theme = (Theme)PB25;
+        if (prog >= 0.5f && prog < 0.75f) PBar.Theme = (Theme)PB50;
+        if (prog >= 0.75f && prog <= 1f) PBar.Theme = (Theme)PB75;
+
+    }
+
+    public void DeclareWin()
+    {
+
     }
 
     public void UpdateExp(int numerator, int denominator)

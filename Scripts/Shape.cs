@@ -17,6 +17,8 @@ public class Shape : Node2D
     public Cell C4;
     public Cell[] Cells;
 
+    public Board Brd;
+
     private enum Form
     {
         J,O,L,T,S,I,Z
@@ -266,6 +268,8 @@ public class Shape : Node2D
     public override void _Ready()
     {
         base._Ready();
+
+        Brd = (Board)GetParent();
         CanRotate = true;
         TurnCount = 0;
 
@@ -293,6 +297,7 @@ public class Shape : Node2D
 
     public void CheckGrid()
     {
+        ToggleHide();
         foreach (Cell cell in Cells)
         {
             EmitSignal("UpdateSignal", cell);
@@ -480,5 +485,20 @@ public class Shape : Node2D
         ColorCells();
     }     
 
-
+    public void ToggleHide()
+    {
+        foreach (Cell cell in Cells)
+        {
+            Brd = (Board)GetParent();
+            Vector2 pos = cell.GlobalPosition - Brd.GlobalPosition;
+            if (pos.y < 0) 
+            {
+                cell.Hide();
+            } 
+            else
+            {
+                cell.Show();
+            }
+        }
+    }
 }
