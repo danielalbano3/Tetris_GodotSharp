@@ -10,12 +10,12 @@ public class Board : Node2D
 
     private PackedScene ShapeScene;
     private PackedScene CellScene;
+    private NextShapesDisplay NextDisplay;
 
     public Queue<int> NextTetros;
 
     [Signal] public delegate void ComboSignal(int combo, int row);
     [Signal] public delegate void GameOver();
-
 
     public override void _Ready()
     {
@@ -23,6 +23,7 @@ public class Board : Node2D
         LineCount = new int[20];
         ShapeScene = ResourceLoader.Load<PackedScene>("res://Scenes/Shape.tscn");
         CellScene = ResourceLoader.Load<PackedScene>("res://Scenes/Cell.tscn");
+        NextDisplay = GetNode<NextShapesDisplay>("NextShapesDisplay");
         
         Cells = new Cell[20,10];
         NextTetros = new Queue<int>();
@@ -32,9 +33,18 @@ public class Board : Node2D
             NextTetros.Enqueue(rand.Next(7));
         }
 
+        SetNextShapes(NextTetros);
+
         SpawnShape();
 
 
+    }
+
+    public void SetNextShapes(Queue<int> nextShapes)
+    {
+        int[] next = new int[7];
+        next = nextShapes.ToArray();
+        NextDisplay.SetShapes(next[0],next[1],next[2],next[3],next[4],next[5],next[6]);
     }
 
     public void FillRow(int row)
@@ -243,6 +253,8 @@ public class Board : Node2D
         Random rand = new Random();
         NextTetros.Enqueue(rand.Next(7));
 
+        SetNextShapes(NextTetros);
+        
         shape.GetShape(num);
     }
 

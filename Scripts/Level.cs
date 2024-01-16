@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class Level : Node2D
 {
-    private Label XP;
     private Label LevelLabel;
     private Board Board;
 
@@ -35,7 +34,6 @@ public class Level : Node2D
         
         Points = 0;
         PlayerLevel = 0;
-        XP = GetNode<Label>("XP");
         PBar = GetNode<ProgressBar>("VBoxContainer/ProgressBar");
         LevelLabel = GetNode<Label>("VBoxContainer/ColorRect/LevelLabel");
         Board = GetNode<Board>("Board");

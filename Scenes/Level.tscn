@@ -53,10 +53,3 @@ anchor_bottom = 1.0
 text = "0 / 100"
 align = 1
 valign = 1
-
-[node name="XP" type="Label" parent="."]
-margin_left = 700.0
-margin_top = 150.0
-margin_right = 740.0
-margin_bottom = 164.0
-text = "0"
