@@ -5,6 +5,7 @@ using System.Linq;
 
 public class Board : Node2D
 {
+    private Shape _shape;
     public int[] LineCount;
     public Cell[,] Cells;
 
@@ -42,9 +43,9 @@ public class Board : Node2D
 
     public void SetNextShapes(Queue<int> nextShapes)
     {
-        int[] next = new int[7];
+        int[] next = new int[5];
         next = nextShapes.ToArray();
-        NextDisplay.SetShapes(next[0],next[1],next[2],next[3],next[4],next[5],next[6]);
+        NextDisplay.SetShapes(next[0],next[1],next[2],next[3],next[4]);
     }
 
     public void FillRow(int row)
@@ -240,13 +241,13 @@ public class Board : Node2D
 
     public void SpawnShape()
     {
-        Shape shape = (Shape)ShapeScene.Instance();
-        AddChild(shape);
-        shape.Position = new Vector2(75f,-50f);
+        _shape = (Shape)ShapeScene.Instance();
+        AddChild(_shape);
+        _shape.Position = new Vector2(75f,-50f);
         
-        shape.Connect("UpdateSignal", this, "UpdateCell");
-        shape.Connect("NextShape", this, "CheckGameOver");
-        shape.Connect("CheckRotations", this, "CheckRotate");
+        _shape.Connect("UpdateSignal", this, "UpdateCell");
+        _shape.Connect("NextShape", this, "CheckGameOver");
+        _shape.Connect("CheckRotations", this, "CheckRotate");
 
         int num = NextTetros.Dequeue();
 
@@ -255,7 +256,7 @@ public class Board : Node2D
 
         SetNextShapes(NextTetros);
         
-        shape.GetShape(num);
+        _shape.GetShape(num);
     }
 
     public void CheckRotate(Shape shape)

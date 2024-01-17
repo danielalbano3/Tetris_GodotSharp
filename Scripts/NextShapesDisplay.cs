@@ -8,8 +8,6 @@ public class NextShapesDisplay : Node2D
     private AnimatedSprite SA3;
     private AnimatedSprite SA4;
     private AnimatedSprite SA5;
-    private AnimatedSprite SA6;
-    private AnimatedSprite SA7;
 
     private Node2D ShapesBox;
 
@@ -22,20 +20,16 @@ public class NextShapesDisplay : Node2D
         SA3 = GetNode<AnimatedSprite>("ShapesBox/SA3");
         SA4 = GetNode<AnimatedSprite>("ShapesBox/SA4");
         SA5 = GetNode<AnimatedSprite>("ShapesBox/SA5");
-        SA6 = GetNode<AnimatedSprite>("ShapesBox/SA6");
-        SA7 = GetNode<AnimatedSprite>("ShapesBox/SA7");
 
     }
 
-    public void SetShapes(int a, int b, int c, int d, int e, int f, int g)
+    public void SetShapes(int a, int b, int c, int d, int e)
     {
         SA1.Animation = ShapeName(a);
         SA2.Animation = ShapeName(b);
         SA3.Animation = ShapeName(c);
         SA4.Animation = ShapeName(d);
         SA5.Animation = ShapeName(e);
-        SA6.Animation = ShapeName(f);
-        SA7.Animation = ShapeName(g);
     }
 
     public string ShapeName(int num)

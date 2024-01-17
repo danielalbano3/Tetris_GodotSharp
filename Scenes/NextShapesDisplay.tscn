@@ -250,7 +250,7 @@ valign = 2
 tile_set = SubResource( 1 )
 cell_size = Vector2( 25, 25 )
 format = 1
-tile_data = PoolIntArray( 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 65536, 0, 0, 65542, 0, 0, 131072, 0, 0, 131078, 0, 0, 196608, 0, 0, 196614, 0, 0, 262144, 0, 0, 262150, 0, 0, 327680, 0, 0, 327686, 0, 0, 393216, 0, 0, 393222, 0, 0, 458752, 0, 0, 458753, 0, 0, 458754, 0, 0, 458755, 0, 0, 458756, 0, 0, 458757, 0, 0, 458758, 0, 0, 524288, 0, 0, 524294, 0, 0, 589824, 0, 0, 589830, 0, 0, 655360, 0, 0, 655366, 0, 0, 720896, 0, 0, 720902, 0, 0, 786432, 0, 0, 786438, 0, 0, 851968, 0, 0, 851974, 0, 0, 917504, 0, 0, 917510, 0, 0, 983040, 0, 0, 983046, 0, 0, 1048576, 0, 0, 1048582, 0, 0, 1114112, 0, 0, 1114118, 0, 0, 1179648, 0, 0, 1179654, 0, 0, 1245184, 0, 0, 1245190, 0, 0, 1310720, 0, 0, 1310726, 0, 0, 1376256, 0, 0, 1376262, 0, 0, 1441792, 0, 0, 1441798, 0, 0, 1507328, 0, 0, 1507329, 0, 0, 1507330, 0, 0, 1507331, 0, 0, 1507332, 0, 0, 1507333, 0, 0, 1507334, 0, 0 )
+tile_data = PoolIntArray( 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 65536, 0, 0, 65542, 0, 0, 131072, 0, 0, 131078, 0, 0, 196608, 0, 0, 196614, 0, 0, 262144, 0, 0, 262150, 0, 0, 327680, 0, 0, 327686, 0, 0, 393216, 0, 0, 393222, 0, 0, 458752, 0, 0, 458753, 0, 0, 458754, 0, 0, 458755, 0, 0, 458756, 0, 0, 458757, 0, 0, 458758, 0, 0, 524288, 0, 0, 524294, 0, 0, 589824, 0, 0, 589830, 0, 0, 655360, 0, 0, 655366, 0, 0, 720896, 0, 0, 720902, 0, 0, 786432, 0, 0, 786438, 0, 0, 851968, 0, 0, 851974, 0, 0, 917504, 0, 0, 917510, 0, 0, 983040, 0, 0, 983046, 0, 0, 1048576, 0, 0, 1048582, 0, 0, 1114112, 0, 0, 1114118, 0, 0, 1179648, 0, 0, 1179654, 0, 0, 1245184, 0, 0, 1245190, 0, 0, 1310720, 0, 0, 1310726, 0, 0, 1376256, 0, 0, 1376257, 0, 0, 1376258, 0, 0, 1376259, 0, 0, 1376260, 0, 0, 1376261, 0, 0, 1376262, 0, 0 )
 
 [node name="ShapesBox" type="Node2D" parent="."]
 
@@ -258,6 +258,7 @@ tile_data = PoolIntArray( 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 
 position = Vector2( 25, 50 )
 frames = SubResource( 37 )
 animation = "J"
+frame = 3
 playing = true
 centered = false
 
@@ -266,7 +267,7 @@ position = Vector2( 50, 200 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 37 )
 animation = "Z"
-frame = 4
+frame = 2
 playing = true
 centered = false
 
@@ -275,7 +276,7 @@ position = Vector2( 50, 275 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 37 )
 animation = "Z"
-frame = 3
+frame = 1
 playing = true
 centered = false
 
@@ -284,7 +285,7 @@ position = Vector2( 50, 350 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 37 )
 animation = "Z"
-frame = 3
+frame = 1
 playing = true
 centered = false
 
@@ -293,24 +294,5 @@ position = Vector2( 50, 425 )
 scale = Vector2( 0.5, 0.5 )
 frames = SubResource( 37 )
 animation = "Z"
-frame = 2
-playing = true
-centered = false
-
-[node name="SA6" type="AnimatedSprite" parent="ShapesBox"]
-position = Vector2( 50, 500 )
-scale = Vector2( 0.5, 0.5 )
-frames = SubResource( 37 )
-animation = "Z"
-frame = 2
-playing = true
-centered = false
-
-[node name="SA7" type="AnimatedSprite" parent="ShapesBox"]
-position = Vector2( 50, 600 )
-scale = Vector2( 0.5, 0.5 )
-frames = SubResource( 37 )
-animation = "Z"
-frame = 1
 playing = true
 centered = false
