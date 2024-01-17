@@ -350,6 +350,7 @@ public class Shape : Node2D
             float addy = vec.y;
             Cells[w].CellTo(addx,addy);
         }
+        ToggleHide();
     }
 
     public void GoDown()
@@ -445,9 +446,9 @@ public class Shape : Node2D
     {
         base._Input(@event);
 
-        if (Input.IsActionJustPressed("go_left")) GoLeft();
-        if (Input.IsActionJustPressed("go_right")) GoRight();
-        if (Input.IsActionJustPressed("go_rotate")) GoRotate();
+        if (Input.IsActionPressed("go_left")) GoLeft();
+        if (Input.IsActionPressed("go_right")) GoRight();
+        if (Input.IsActionPressed("go_rotate")) GoRotate();
         if (Input.IsActionPressed("go_down")) GoDown();
     }
 

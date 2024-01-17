@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://Scripts/Board.cs" type="Script" id=1]
 [ext_resource path="res://icon.png" type="Texture" id=2]
 [ext_resource path="res://Assets/25x25.png" type="Texture" id=3]
+[ext_resource path="res://Scenes/NextShapesDisplay.tscn" type="PackedScene" id=4]
 
 [node name="Board" type="Node2D"]
 script = ExtResource( 1 )
@@ -26,3 +27,6 @@ margin_bottom = 1279.0
 rect_scale = Vector2( 0.391, 0.391 )
 texture = ExtResource( 2 )
 stretch_mode = 2
+
+[node name="NextShapesDisplay" parent="." instance=ExtResource( 4 )]
+position = Vector2( -200, -25 )

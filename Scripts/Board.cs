@@ -5,17 +5,18 @@ using System.Linq;
 
 public class Board : Node2D
 {
+    private Shape _shape;
     public int[] LineCount;
     public Cell[,] Cells;
 
     private PackedScene ShapeScene;
     private PackedScene CellScene;
+    private NextShapesDisplay NextDisplay;
 
     public Queue<int> NextTetros;
 
     [Signal] public delegate void ComboSignal(int combo, int row);
     [Signal] public delegate void GameOver();
-
 
     public override void _Ready()
     {
@@ -23,6 +24,7 @@ public class Board : Node2D
         LineCount = new int[20];
         ShapeScene = ResourceLoader.Load<PackedScene>("res://Scenes/Shape.tscn");
         CellScene = ResourceLoader.Load<PackedScene>("res://Scenes/Cell.tscn");
+        NextDisplay = GetNode<NextShapesDisplay>("NextShapesDisplay");
         
         Cells = new Cell[20,10];
         NextTetros = new Queue<int>();
@@ -32,9 +34,18 @@ public class Board : Node2D
             NextTetros.Enqueue(rand.Next(7));
         }
 
+        SetNextShapes(NextTetros);
+
         SpawnShape();
 
 
+    }
+
+    public void SetNextShapes(Queue<int> nextShapes)
+    {
+        int[] next = new int[5];
+        next = nextShapes.ToArray();
+        NextDisplay.SetShapes(next[0],next[1],next[2],next[3],next[4]);
     }
 
     public void FillRow(int row)
@@ -230,20 +241,22 @@ public class Board : Node2D
 
     public void SpawnShape()
     {
-        Shape shape = (Shape)ShapeScene.Instance();
-        AddChild(shape);
-        shape.Position = new Vector2(75f,-50f);
+        _shape = (Shape)ShapeScene.Instance();
+        AddChild(_shape);
+        _shape.Position = new Vector2(75f,-50f);
         
-        shape.Connect("UpdateSignal", this, "UpdateCell");
-        shape.Connect("NextShape", this, "CheckGameOver");
-        shape.Connect("CheckRotations", this, "CheckRotate");
+        _shape.Connect("UpdateSignal", this, "UpdateCell");
+        _shape.Connect("NextShape", this, "CheckGameOver");
+        _shape.Connect("CheckRotations", this, "CheckRotate");
 
         int num = NextTetros.Dequeue();
 
         Random rand = new Random();
         NextTetros.Enqueue(rand.Next(7));
 
-        shape.GetShape(num);
+        SetNextShapes(NextTetros);
+        
+        _shape.GetShape(num);
     }
 
     public void CheckRotate(Shape shape)
